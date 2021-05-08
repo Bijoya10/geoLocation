@@ -1,6 +1,5 @@
 import * as React from 'react';
-import MapView, { Marker } from "react-native-maps";
-import { Text, View, StyleSheet, Alert,Dimensions } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 
 export default class App extends React.Component {
   constructor() {
@@ -8,36 +7,43 @@ export default class App extends React.Component {
     this.state = {
       longitude: '',
       latitude: '',
+      weather:'',
+      url:""
     };
   }
-  componentDidMount() {
-    navigator.geolocation.getCurrentPosition(
+  componentDidMount=async()=> {
+    await navigator.geolocation.getCurrentPosition(
       (position) => {
         this.setState({
-          longitude: position.coords.longitude,
-          latitude: position.coords.latitude,
+          longitude: position.coords.longitude.toFixed(2),
+          latitude: position.coords.latitude.toFixed(2),
         });
-      },
-      () => {
-        Alert.alert('dont know');
-      }
-    );
+      })
+        
   }
   render() {
-
+    console.log(this.state.longitude)
     return (
       
-      <View>
+      <View style={styles.container}>
         {this.state.longitude && this.state.latitude ? (
           
           <View style={styles.container}>
-            <Text>{this.state.longitude +" "+this.state.latitude}</Text>
-            <MapView style={styles.mapStyle} initialRegion={{latitude:this.state.latitude,longitude:this.state.longitude,latitudeDelta:0.01,longitudeDelta:0.01}}>
-              <Marker coordinate={{latitude:this.state.latitude,longitude:this.state.longitude}} />
-            </MapView>
+            {
+              this.state.url?(
+                <Text>hi</Text>
+              ):( 
+                this.setState({
+                    url:"https://fcc-weather-api.glitch.me/api/current?lat="+this.state.longitude+"&lon="+this.state.latitude
+                })
+              
+              )
+           
+          }
+            <Text>{this.state.url}</Text>
           </View>
         ) : (
-          Alert.alert('dont know')
+          <Text>wait</Text>
         )}
       </View>
     );
@@ -45,12 +51,9 @@ export default class App extends React.Component {
 }
 const styles = StyleSheet.create({
   container: {
+    flex:1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  mapStyle: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  },
+  }
 });
